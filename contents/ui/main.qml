@@ -54,15 +54,14 @@ PlasmoidItem {
         Repeater {
             model: virtualDesktopInfo.desktopIds
             delegate: Rectangle {
-                readonly property bool active: virtualDesktopInfo.currentDesktop === modelData
-                
-                color: active ? Kirigami.Theme.textColor : "transparent"
-                border.color: active ? "transparent" : Kirigami.Theme.textColor 
-                border.width: width * 0.05
-
                 width: Kirigami.Theme.defaultFont.pointSize
                 height: Kirigami.Theme.defaultFont.pointSize
                 radius: width / 2
+
+                color: virtualDesktopInfo.currentDesktop === modelData ? Kirigami.Theme.textColor : "transparent"
+
+                border.color: Kirigami.Theme.textColor
+                border.width: width * 0.05
 
                 MouseArea {
                     anchors.fill: parent
