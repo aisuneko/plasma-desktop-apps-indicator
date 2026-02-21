@@ -1,0 +1,22 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "serfreeman1337"
+            }
+        ],
+        "Category": "Windows and Tasks",
+        "Description": "Very simple virtual desktop indicator",
+        "Icon": "preferences-desktop-virtual",
+        "Id": "com.github.serfreeman1337.plasmadesktopindicator",
+        "License": "MIT",
+        "Name": "Very Minimal Desktop Indicator",
+        "Version": "0.1",
+        "Website": "https://github.com/serfreeman1337/plasma-desktop-indicator"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.virtualdesktops"
+    ]
+}
