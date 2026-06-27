@@ -16,10 +16,11 @@ PlasmoidItem {
     TaskManager.VirtualDesktopInfo {
         id: virtualDesktopInfo
         onDesktopIdsChanged: {
-            root.currentIndex = -1
+            root.currentIndex = -1;
         }
         onCurrentDesktopChanged: {
-            if (!changed) currentIndex = -1;
+            if (!changed)
+                currentIndex = -1;
             changed = false;
         }
     }
@@ -31,12 +32,15 @@ PlasmoidItem {
     MouseArea {
         anchors.fill: parent
         onWheel: wheel => {
-            if (root.currentIndex == -1) root.currentIndex = virtualDesktopInfo.desktopIds.findIndex(desktop => desktop === virtualDesktopInfo.currentDesktop);
+            if (root.currentIndex == -1)
+                root.currentIndex = virtualDesktopInfo.desktopIds.findIndex(desktop => desktop === virtualDesktopInfo.currentDesktop);
             if (wheel.angleDelta.y > 0) { // Scroll up.
-                if (root.currentIndex == 0) return;
+                if (root.currentIndex == 0)
+                    return;
                 root.currentIndex--;
             } else if (wheel.angleDelta.y < 0) { // Scroll down.
-                if (root.currentIndex == virtualDesktopInfo.desktopIds.length - 1) return;
+                if (root.currentIndex == virtualDesktopInfo.desktopIds.length - 1)
+                    return;
                 root.currentIndex++;
             } else {
                 return;
@@ -49,25 +53,70 @@ PlasmoidItem {
     Flow {
         id: stuff
         anchors.centerIn: parent
-        spacing: Kirigami.Units.smallSpacing / 2
+        spacing: Kirigami.Units.smallSpacing
 
         Repeater {
             model: virtualDesktopInfo.desktopIds
-            delegate: Rectangle {
-                width: Kirigami.Theme.defaultFont.pointSize
-                height: Kirigami.Theme.defaultFont.pointSize
-                radius: width / 2
+            delegate: Row {
+                id: desktopGroup
+                property var desktopId: modelData
+                spacing: Kirigami.Units.smallSpacing
 
-                color: virtualDesktopInfo.currentDesktop === modelData ? Kirigami.Theme.textColor : "transparent"
+                Rectangle {
+                    id: groupBackground
+                    radius: 6
+                    color: virtualDesktopInfo.currentDesktop === desktopGroup.desktopId ? Kirigami.Theme.highlightColor : "transparent"
+                    border.width: 1
+                    border.color: virtualDesktopInfo.currentDesktop === desktopGroup.desktopId ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor
+                    opacity: virtualDesktopInfo.currentDesktop === desktopGroup.desktopId ? 1 : 0.75
 
-                border.color: Kirigami.Theme.textColor
-                border.width: width * 0.05
+                    implicitWidth: groupContainer.implicitWidth + 2 * groupBackground.padding
+                    implicitHeight: groupContainer.implicitHeight + 2 * groupBackground.padding
+                    property real padding: Kirigami.Units.smallSpacing
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        root.currentIndex = index;
-                        setCurrentDesktop(root.currentIndex);
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            root.currentIndex = virtualDesktopInfo.desktopIds.findIndex(desktop => desktop === desktopGroup.desktopId);
+                            setCurrentDesktop(root.currentIndex);
+                        }
+                    }
+
+                    Row {
+                        id: groupContainer
+                        anchors.centerIn: parent
+                        spacing: Kirigami.Units.smallSpacing
+                        Repeater {
+                            model: TaskManager.TasksModel {
+                                id: groupModel
+                                virtualDesktop: desktopGroup.desktopId
+                                filterByVirtualDesktop: true
+                                filterByScreen: false
+                                filterByActivity: false
+                                groupMode: TaskManager.TasksModel.GroupDisabled
+                                sortMode: TaskManager.TasksModel.SortDisabled
+                            }
+                            delegate: Item {
+                                width: 24
+                                height: 24
+                                visible: !model.IsOnAllVirtualDesktops || (model.IsOnAllVirtualDesktops && virtualDesktopInfo.numberOfDesktops === 1)
+
+                                Kirigami.Icon {
+                                    anchors.fill: parent
+                                    source: model.decoration !== undefined ? model.decoration : "plasma-symbolic"
+                                    opacity: model.IsHidden === true ? 0.5 : 1
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    propagateComposedEvents: true
+                                    onClicked: {
+                                        groupModel.requestActivate(groupModel.index(index, 0));
+                                        mouse.accepted = false;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -82,9 +131,7 @@ PlasmoidItem {
             'iface': 'org.kde.KWin',
             'member': 'setCurrentDesktop',
             'signature': '(i)',
-            'arguments': [
-                new DBus.int32(index + 1)
-            ]
+            'arguments': [new DBus.int32(index + 1)]
         });
     }
 
@@ -99,10 +146,7 @@ PlasmoidItem {
                     'iface': 'org.kde.KWin.VirtualDesktopManager',
                     'member': 'createDesktop',
                     'signature': '(us)',
-                    'arguments': [
-                        new DBus.uint32(virtualDesktopInfo.numberOfDesktops),
-                        new DBus.string(''),
-                    ]
+                    'arguments': [new DBus.uint32(virtualDesktopInfo.numberOfDesktops), new DBus.string(''),]
                 });
             }
         },
@@ -117,9 +161,7 @@ PlasmoidItem {
                     'iface': 'org.kde.KWin.VirtualDesktopManager',
                     'member': 'removeDesktop',
                     'signature': '(s)',
-                    'arguments': [
-                        new DBus.string(virtualDesktopInfo.currentDesktop)
-                    ]
+                    'arguments': [new DBus.string(virtualDesktopInfo.currentDesktop)]
                 });
             }
         },
@@ -127,9 +169,9 @@ PlasmoidItem {
             text: i18nc("@action:inmenu widget context menu", "Configure Virtual Desktops…") // qmllint disable unqualified
             onTriggered: {
                 if (Qt.platform.pluginName.includes("wayland"))
-                    KCM.KCMLauncher.openSystemSettings("kcm_kwin_virtualdesktops")
+                    KCM.KCMLauncher.openSystemSettings("kcm_kwin_virtualdesktops");
                 else
-                    KCM.KCMLauncher.openSystemSettings("kcm_kwin_virtualdesktops_x11")
+                    KCM.KCMLauncher.openSystemSettings("kcm_kwin_virtualdesktops_x11");
             }
         }
     ]

@@ -1,8 +1,7 @@
-# Very Minimal Desktop Indicator
-<img width="172" height="56" src="https://github.com/user-attachments/assets/68ce7d57-3192-4d73-9f72-b015f5e719c0" />
+# Plasma Desktop Apps Indicator
 
-Inspired by [Minimal Desktop Indicator](https://github.com/DualityKyle/plasma-desktop-indicator), which itself was inspired by [GNOME Workspace indicator](https://github.com/tty2/horizontal-workspace-indicator).  
-Very simple virtual desktop indicator for Plasma 6. So simple that there is no configuration, white circles are what you get.
+A Desktop indicator for KDE Plasma 6, forked from [Very Minimal Desktop Indicator](https://github.com/serfreeman1337/plasma-desktop-indicator), but with app icons grouped by desktops to allow for a clear glance of what's on each virtual desktop.
 
-It draws circles as very round rectangles, and doesn't just print a circle as text.  
-Also, it uses the kwin dbus api to switch desktops because no one ever put `Q_INVOKABLE` for that plasma api.
+There are no configurations at the moment, and I may add some if I happen to need these.
+
+(same as the original fork) Also, it uses the kwin dbus api to switch desktops because no one ever put `Q_INVOKABLE` for that plasma api.

@@ -3,17 +3,17 @@
     "KPlugin": {
         "Authors": [
             {
-                "Name": "serfreeman1337"
+                "Name": "aisuneko"
             }
         ],
         "Category": "Windows and Tasks",
-        "Description": "Very simple virtual desktop indicator",
+        "Description": "Virtual desktop indicator with app icons",
         "Icon": "preferences-desktop-virtual",
-        "Id": "com.github.serfreeman1337.plasmadesktopindicator",
+        "Id": "moe.aisuneko.desktopiconindicator",
         "License": "MIT",
-        "Name": "Very Minimal Desktop Indicator",
+        "Name": "Desktop Apps Indicator",
         "Version": "0.1",
-        "Website": "https://github.com/serfreeman1337/plasma-desktop-indicator"
+        "Website": "https://github.com/aisuneko/plasma-desktop-apps-indicator"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
     "X-Plasma-Provides": [
