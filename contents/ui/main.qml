@@ -27,6 +27,8 @@ PlasmoidItem {
 
     Layout.minimumWidth: stuff.implicitWidth
     Layout.minimumHeight: stuff.implicitHeight
+    implicitWidth: stuff.implicitWidth
+    implicitHeight: stuff.implicitHeight
     preferredRepresentation: fullRepresentation
 
     MouseArea {
@@ -54,6 +56,59 @@ PlasmoidItem {
         id: stuff
         anchors.centerIn: parent
         spacing: Kirigami.Units.smallSpacing
+
+        Row {
+            id: pinnedGroup
+            spacing: Kirigami.Units.smallSpacing
+
+            // visible: (pinnedGroupContainer.implicitWidth > 0) && (virtualDesktopInfo.numberOfDesktops !== 1)
+
+            Rectangle {
+                id: pinnedGroupBackground
+                radius: 6
+                color: Kirigami.Theme.alternateBackgroundColor
+                border.width: 1
+                border.color: Kirigami.Theme.alternateBackgroundColor
+                opacity: 1
+                implicitWidth: pinnedGroupContainer.implicitWidth + 2 * pinnedGroupBackground.padding
+                implicitHeight: root.implicitHeight
+                property real padding: Kirigami.Units.smallSpacing
+
+                Row {
+                    id: pinnedGroupContainer
+                    anchors.centerIn: parent
+                    spacing: Kirigami.Units.smallSpacing
+                    Repeater {
+                        id: pinnedGroupRepeater
+                        model: TaskManager.TasksModel {
+                            id: pinnedGroupModel
+                            groupMode: TaskManager.TasksModel.GroupApplications
+                            sortMode: TaskManager.TasksModel.SortDisabled
+                        }
+                        delegate: Item {
+                            width: 24
+                            height: 24
+                            visible: model.IsOnAllVirtualDesktops
+
+                            Kirigami.Icon {
+                                anchors.fill: parent
+                                source: model.decoration !== undefined ? model.decoration : "plasma-symbolic"
+                                opacity: model.IsHidden === true ? 0.5 : 1
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                propagateComposedEvents: true
+                                onClicked: {
+                                    pinnedGroupModel.requestActivate(pinnedGroupModel.index(index, 0));
+                                    mouse.accepted = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Repeater {
             model: virtualDesktopInfo.desktopIds
@@ -93,7 +148,7 @@ PlasmoidItem {
                                 filterByVirtualDesktop: true
                                 filterByScreen: false
                                 filterByActivity: false
-                                groupMode: TaskManager.TasksModel.GroupDisabled
+                                groupMode: TaskManager.TasksModel.GroupApplications
                                 sortMode: TaskManager.TasksModel.SortDisabled
                             }
                             delegate: Item {
