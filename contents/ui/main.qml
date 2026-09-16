@@ -71,7 +71,7 @@ PlasmoidItem {
                 border.color: Kirigami.Theme.alternateBackgroundColor
                 opacity: 1
                 implicitWidth: pinnedGroupContainer.implicitWidth + 2 * pinnedGroupBackground.padding
-                implicitHeight: root.implicitHeight
+                implicitHeight: Math.max(pinnedGroupContainer.implicitHeight + 2 * pinnedGroupBackground.padding, stuff.implicitHeight)
                 property real padding: Kirigami.Units.smallSpacing
 
                 Row {
@@ -115,7 +115,8 @@ PlasmoidItem {
             delegate: Row {
                 id: desktopGroup
                 property var desktopId: modelData
-                spacing: Kirigami.Units.smallSpacing
+                implicitWidth: groupBackground.implicitWidth
+                implicitHeight: groupBackground.implicitHeight
 
                 Rectangle {
                     id: groupBackground
@@ -126,7 +127,7 @@ PlasmoidItem {
                     opacity: virtualDesktopInfo.currentDesktop === desktopGroup.desktopId ? 1 : 0.75
 
                     implicitWidth: groupContainer.implicitWidth + 2 * groupBackground.padding
-                    implicitHeight: groupContainer.implicitHeight + 2 * groupBackground.padding
+                    implicitHeight: Math.max(groupContainer.implicitHeight + 2 * groupBackground.padding, stuff.implicitHeight)
                     property real padding: Kirigami.Units.smallSpacing
 
                     MouseArea {
