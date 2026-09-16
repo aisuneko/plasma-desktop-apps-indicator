@@ -13,6 +13,37 @@ PlasmoidItem {
     property int currentIndex: -1
     property bool changed: false
 
+    component CornerIndicator: Canvas {
+        property real radius: 0
+        property real borderWidth: 1
+
+        onRadiusChanged: requestPaint()
+        onVisibleChanged: requestPaint()
+
+        onPaint: {
+            const ctx = getContext("2d");
+            ctx.reset();
+
+            const inset = borderWidth;
+            const inner = Math.max(radius - inset, 0);
+            ctx.beginPath();
+            ctx.moveTo(inset + inner, inset);
+            ctx.arcTo(width - inset, inset, width - inset, height - inset, inner);
+            ctx.arcTo(width - inset, height - inset, inset, height - inset, inner);
+            ctx.arcTo(inset, height - inset, inset, inset, inner);
+            ctx.arcTo(inset, inset, width - inset, inset, inner);
+            ctx.clip();
+
+            ctx.beginPath();
+            ctx.moveTo(width, height / 2);
+            ctx.lineTo(width, height);
+            ctx.lineTo(width / 2, height);
+            ctx.closePath();
+            ctx.fillStyle = Kirigami.Theme.highlightColor;
+            ctx.fill();
+        }
+    }
+
     TaskManager.VirtualDesktopInfo {
         id: virtualDesktopInfo
         onDesktopIdsChanged: {
@@ -112,7 +143,7 @@ PlasmoidItem {
 
         Repeater {
             model: virtualDesktopInfo.desktopIds
-            delegate: Row {
+            delegate: Item {
                 id: desktopGroup
                 property var desktopId: modelData
                 implicitWidth: groupBackground.implicitWidth
@@ -142,7 +173,12 @@ PlasmoidItem {
                         id: groupContainer
                         anchors.centerIn: parent
                         spacing: Kirigami.Units.smallSpacing
+
+                        property int attentionCount: 0
+                        property bool attention: attentionCount > 0
+
                         Repeater {
+                            id: groupRepeater
                             model: TaskManager.TasksModel {
                                 id: groupModel
                                 virtualDesktop: desktopGroup.desktopId
@@ -155,7 +191,28 @@ PlasmoidItem {
                             delegate: Item {
                                 width: 24
                                 height: 24
-                                visible: !model.IsOnAllVirtualDesktops || (model.IsOnAllVirtualDesktops && virtualDesktopInfo.numberOfDesktops === 1)
+
+                                // TasksModel's internal filter lets windows demanding attention bypass virtual desktop filter
+                                // Gate on actual desktop membership here
+                                readonly property bool attention: model.IsDemandingAttention === true
+                                    && model.IsOnAllVirtualDesktops !== true
+                                    && (model.VirtualDesktops === undefined
+                                        || model.VirtualDesktops.indexOf(desktopGroup.desktopId) !== -1)
+
+                                property bool counted: false
+
+                                onAttentionChanged: syncCount()
+                                Component.onCompleted: syncCount()
+                                Component.onDestruction: if (counted) groupContainer.attentionCount--
+
+                                function syncCount() {
+                                    if (counted !== attention) {
+                                        groupContainer.attentionCount += (attention ? 1 : -1);
+                                        counted = attention;
+                                    }
+                                }
+
+                                visible: (!model.IsOnAllVirtualDesktops || virtualDesktopInfo.numberOfDesktops === 1) && !(model.IsDemandingAttention === true && model.VirtualDesktops !== undefined && model.VirtualDesktops.indexOf(desktopGroup.desktopId) === -1)
 
                                 Kirigami.Icon {
                                     anchors.fill: parent
@@ -174,6 +231,13 @@ PlasmoidItem {
                             }
                         }
                     }
+                }
+
+                CornerIndicator {
+                    anchors.fill: groupBackground
+                    visible: groupContainer.attention
+                    radius: groupBackground.radius
+                    borderWidth: groupBackground.border.width
                 }
             }
         }
